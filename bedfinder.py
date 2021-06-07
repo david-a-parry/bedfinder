@@ -3,7 +3,7 @@ import re
 import gzip
 
 class BedFinder(object):
-    ''' 
+    '''
         For a given BED file, read into memory and search on location.
     '''
 
@@ -11,15 +11,15 @@ class BedFinder(object):
     _window = 100000
 
     def __init__(self, bed):
-        ''' 
-            Opens given bed file, reads into memory and sorts by 
+        '''
+            Opens given bed file, reads into memory and sorts by
             coordinate for efficient retrieval by coordinate.
         '''
         self.regions = defaultdict(dict)
         if bed.endswith((".gz", ".bgz")):
             bfile = gzip.open(bed, errors='replace', mode='rt')
         else:
-            bfile = open (bed, 'rt') 
+            bfile = open (bed, 'rt')
         for line in bfile:
             if line[0] == '#': continue
             s = line.rstrip().split("\t")
@@ -41,20 +41,20 @@ class BedFinder(object):
         for c in self.regions:
             for i in self.regions[c]:
                 self.regions[c][i].sort(key=lambda x: (x[1], x[2]))
-        
+
     def fetch_region(self, region):
         ''' Fetch lines overlapping given region (in format chr1:1-2000) '''
         c, s, e = self._reg_split.split(region)
         return self.fetch(c, s, e)
 
     def fetch(self, chrom, start, end):
-        ''' 
+        '''
             Fetch lines overlapping given chromosome, start and end
             coordinates.
         '''
         if chrom not in self.regions:
             return []
-        start = int(start)        
+        start = int(start)
         end = int(end)
         idx_start = int(start/self._window) * self._window
         idx_end = int(end/self._window) * self._window
